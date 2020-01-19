@@ -1,0 +1,69 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="static/index.css">
+        
+        <script src="static/codemirror-5.50.2/lib/codemirror.js"></script>
+        <link rel="stylesheet" href="static/codemirror-5.50.2/lib/codemirror.css">
+        <script src="static/codemirror-5.50.2/mode/python/python.js"></script>
+        
+    </head>
+    <body>
+        <div id="main-container">
+            <div id="options">
+                <p>SOLITUDE DEMO</p>
+            </div>
+            <div id="bottom-container">
+                <div id="left-side">
+                    <div id="text-editor">
+                        <textarea id="code-editor"></textarea>
+                    </div>
+                </div>
+                <div id="right-side">
+                    <div id="backtest-area">
+                        <form id="run-options">
+                        <div id="backtest-options">
+                            <input type="date" class="date-selector" name="start_date" id="start-date" value="2015-01-01">
+                            <p class="date-label">to</p>
+                            <input type="date" class="date-selector" name="end_date" id="end-date" value="2015-01-30">
+                            <div class="input-icon">
+                                <input type="number" id="cash" name="cash" value=50000>
+                                <i>$</i>
+                              </div>                              
+                            <button type="button" id="run-button">Run Backtest</button>
+                        </div>
+                        </form>
+                        <div id="graph-area">
+                            <canvas id="graph-canvas"></canvas>
+                        </div>
+                    </div>
+                    <div id="log-area">
+                        <div id="log-title">
+                            <p>Logs</p>
+                        </div>
+                        <div id="logger">
+                            <ul id="log-list">
+                            </ul>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    <footer>
+        <script>
+            var editor = CodeMirror.fromTextArea(document.getElementById("code-editor"), {
+                mode: "python",
+                styleActiveLine: true,
+                lineNumbers: true,
+                lineWrapping: true,
+            });
+            editor.setValue("class TestStrategy(Strategy):\n\n \t def setup(self):\n\n \t\t self.symbol='AAPL'\
+            \n\n \t def get_signals(self, event): \n\n \t\t pass")
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.js"></script>
+        <script src="static/index.js"></script>
+
+        <link rel="stylesheet" href="static/code-editor.css">
+    </footer>
+</html>

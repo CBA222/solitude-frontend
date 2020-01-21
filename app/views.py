@@ -1,14 +1,24 @@
 from flask import current_app, render_template, Blueprint, jsonify, request
+from flask import session
 from .tasks import run_backtest
 import redis
+import uuid
 import datetime as dt
 import pandas_market_calendars as mcal
+from . import config
 
 backtest = Blueprint('backtest', __name__)
 
-@backtest.route('/')
+@backtest.route('/', methods=['GET'])
 def index():
-    return render_template('index.html')
+
+    if 'saved_code' not in session.keys():
+        session['saved_code'] = config.DEFAULT_CODE
+
+    if 'id' not in session.keys():
+        session['id'] = uuid.uuid4()
+
+    return render_template('index.html', saved_code=session['saved_code'])
 
 @backtest.route('/logs')
 def logs():
@@ -32,14 +42,10 @@ def returns():
 
     return jsonify(remaining_returns)
 
-
-@backtest.route('/backtest/<int:id>/logs', methods=['GET'])
-def backtest_logs(id):
-    pass
-
-@backtest.route('/backtest/<int:id>/returns', methods=['GET'])
-def backtest_returns(id):
-    pass
+@backtest.route('/backtest/savecode', methods=['POST'])
+def savecode():
+    session['saved_code'] = request.json['saved_code']
+    return 'Saved successfully.'
 
 @backtest.route('/backtest/start', methods=['POST'])
 def backtest_start():
@@ -57,9 +63,13 @@ def backtest_start():
         int(request.json['end_date'][8:10])
         )
 
-    class_definition = 'class TestStrategy: \n'
-
-    task = run_backtest.apply_async(args=[start_date, end_date, request.json['cash']])
+    task = run_backtest.apply_async(args=[
+        session['id'],
+        start_date, 
+        end_date, 
+        request.json['cash'], 
+        request.json['code']
+        ])
 
     schedule = mcal.get_calendar('NYSE').schedule(start_date=start_date, end_date=end_date)
     chart_labels = [str(x)[0:10] for x in list(schedule.index)]

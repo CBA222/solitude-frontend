@@ -8,6 +8,7 @@
         
     </head>
     <body>
+        <form id="run-options">
         <div id="main-container">
             <div id="options">
                 <p>SOLITUDE DEMO</p>
@@ -20,7 +21,7 @@
                 </div>
                 <div id="right-side">
                     <div id="backtest-area">
-                        <form id="run-options">
+                        
                         <div id="backtest-options">
                             <input type="date" class="date-selector" name="start_date" id="start-date" value="2015-01-01">
                             <p class="date-label">to</p>
@@ -31,7 +32,6 @@
                               </div>                              
                             <button type="button" id="run-button">Run Backtest</button>
                         </div>
-                        </form>
                         <div id="graph-area">
                             <canvas id="graph-canvas"></canvas>
                         </div>
@@ -49,19 +49,14 @@
                 </div>
             </div>
         </div>
+        </form>
     </body>
     <footer>
-        <script>
-            var editor = CodeMirror.fromTextArea(document.getElementById("code-editor"), {
-                mode: "python",
-                styleActiveLine: true,
-                lineNumbers: true,
-                lineWrapping: true,
-            });
-            editor.setValue("class TestStrategy(Strategy):\n\n \t def setup(self):\n\n \t\t self.symbol='AAPL'\
-            \n\n \t def get_signals(self, event): \n\n \t\t pass")
-        </script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.js"></script>
+        <script type="text/javascript">
+            var saved_code = {{ saved_code|tojson }}; // Security, JS injection?
+        </script>
+
         <script src="static/index.js"></script>
 
         <link rel="stylesheet" href="static/code-editor.css">

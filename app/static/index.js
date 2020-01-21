@@ -1,5 +1,3 @@
-
-
 var run_button = document.getElementById("run-button");
 
 function create_chart () {
@@ -14,9 +12,7 @@ function create_chart () {
 
     try {
         window.graph.destroy();
-    } 
-    catch (err) {
-    }
+    } catch (err) {}
 
     renderChart(window.chart_data, info.labels);
     window.chart_labels = info.labels;
@@ -25,18 +21,20 @@ function create_chart () {
 };
 
 run_button.onclick = function() {
-    //document.getElementById("bottom-container").style.backgroundColor="blue";
 
     var form_data = new FormData(document.getElementById("run-options"));
     var request = new XMLHttpRequest();
     request.addEventListener("load", create_chart);
     request.open("POST", '/backtest/start', true);
     request.setRequestHeader('Content-Type', 'application/json');
-    request.send(JSON.stringify(Object.fromEntries(form_data)));
+
+    form_json = Object.fromEntries(form_data);
+    form_json['code'] = window.editor.getValue();
+    request.send(JSON.stringify(form_json));
 
 };
 
-
+/*
 function write_logs () {
     log_list = document.getElementById("log-list")
     info = JSON.parse(this.response)
@@ -46,10 +44,19 @@ function write_logs () {
         log_list.appendChild(child)
     };
 };
+*/
 
 function refresh_logs () {
     var log_request = new XMLHttpRequest();
-    log_request.addEventListener("load", write_logs);
+    log_request.addEventListener("load", function () {
+        var log_list = document.getElementById("log-list")
+        var info = JSON.parse(this.response)
+        for (var x in info) {
+            let child = document.createElement('li')
+            child.innerHTML = info[x]
+            log_list.appendChild(child)
+        };
+    });
     log_request.open("GET", "/logs", true);
     log_request.send();
 
@@ -126,7 +133,25 @@ function renderChart(data, labels) {
     });
 }
 
+window.addEventListener("beforeunload", function(event) {
+    var request = new XMLHttpRequest();
+    request.open("POST", '/backtest/savecode', true);
+    request.setRequestHeader('Content-Type', 'application/json');
+    request.send(JSON.stringify({'saved_code': window.editor.getValue()}));
+})
+
 window.onload = function() {
+
+    window.editor = CodeMirror.fromTextArea(document.getElementById("code-editor"), {
+        mode: "python",
+        styleActiveLine: true,
+        lineNumbers: true,
+        lineWrapping: true,
+    });
+    //window.editor.setValue("def setup(self):\n\n    self.symbol='AAPL'\
+    //\n\ndef get_signals(self, event): \n\n    pass")
+    window.editor.setValue(saved_code)
+
     this.refresh_logs();
 
     Chart.defaults.LineWithLine = Chart.defaults.line;
